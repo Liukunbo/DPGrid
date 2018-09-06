@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="image">
+      <UniqueIdentifier>{de3ee4fc-188a-48c5-840f-4d44b1a9f632}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{6755f6a5-18cb-4931-9018-3defc9411dda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{221f3e69-8317-4e0b-be31-e866bce34705}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature">
+      <UniqueIdentifier>{784e9075-0082-4059-8e37-ab6926c0baa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\matching">
+      <UniqueIdentifier>{2352ac59-d4d8-44da-b4ce-d5d56eb5baa5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AerialTriMatchLib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\defines.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\image.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\image_base.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\image_color.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\image_drawing.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\image_io.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\image_tools.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\defines.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\endian.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\exception.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\string.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\accum.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\algo.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\defines.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\functions.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\matrix.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\vector.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\feature_set.h">
+      <Filter>feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\sift.h">
+      <Filter>feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\surf.h">
+      <Filter>feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\matrix_tools.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\timer.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\aligned_allocator.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\aligned_memory.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\exhaustive_matching.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\matching.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\matching_base.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\nearest_neighbor.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\cascade_hashing.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\system.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\dpgrid_matching.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\ransac.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\ransac_fundamental.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\fundamental.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\dpgrid_common.h">
+      <Filter>feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\harris.h">
+      <Filter>feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\harris_matching.h">
+      <Filter>feature\matching</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AerialTriMatchLib.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\image\image_io.cc">
+      <Filter>image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\image\image_tools.cc">
+      <Filter>image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\feature_set.cc">
+      <Filter>feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\sift.cc">
+      <Filter>feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\surf.cc">
+      <Filter>feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\exhaustive_matching.cc">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\matching.cc">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\nearest_neighbor.cc">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\cascade_hashing.cc">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\system.cc">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\dpgrid_matching.cpp">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\ransac.cc">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\ransac_fundamental.cc">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\fundamental.cc">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\harris.cc">
+      <Filter>feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\harris_matching.cpp">
+      <Filter>feature\matching</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
