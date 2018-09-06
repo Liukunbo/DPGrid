@@ -16,6 +16,8 @@ typedef fea::CorrespondenceIndices remap_feature_id;
 FeatureMatcher::FeatureMatcher(FeatureMatcher::Options const & options)
 	:opt_(options)
 {
+	opt_.reverse_y_coord = false;
+	opt_.anti_normalize_coord = false;
 }
 
 FeatureMatcher::~FeatureMatcher()
@@ -25,6 +27,8 @@ FeatureMatcher::~FeatureMatcher()
 void FeatureMatcher::SetOptions(FeatureMatcher::Options const & options)
 {
 	opt_ = options;
+	opt_.reverse_y_coord = false;
+	opt_.anti_normalize_coord = false;
 }
 
 int FeatureMatcher::Match(std::string szFea1, std::string szFea2, std::string szMchFile)
@@ -36,12 +40,10 @@ int FeatureMatcher::Match(std::string szFea1, std::string szFea2, std::string sz
 	int Scale1 = 0, FeaW1 = 0, FeaH1 = 0;
 	int ret1 = fea::fea_mch::readFeatureFile(szFea1, Scale1, FeaW1, FeaH1, features1);
 	if (ret1 == EXIT_FAILURE) { std::cerr << "*** Error: Can't open file: " << szFea1 << std::endl; return EXIT_FAILURE; }
-	std::cout << "Open file: " << szFea1 << " Success" << std::endl;
 	fea::FeatureSet features2;
 	int Scale2 = 0, FeaW2 = 0, FeaH2 = 0;
 	int ret2 = fea::fea_mch::readFeatureFile(szFea2, Scale2, FeaW2, FeaH2, features2);
 	if (ret2 == EXIT_FAILURE) { std::cerr << "*** Error: Can't open file: " << szFea2 << std::endl; return EXIT_FAILURE; }
-	std::cout << "Open file: " << szFea2 << " Success" << std::endl;
 
 	/* Organize features */
 	fea::FeatureSet::Options feature_options;
@@ -75,7 +77,7 @@ int FeatureMatcher::Match(std::string szFea1, std::string szFea2, std::string sz
 	fea::fea_mch::dpg_mch::Matching dpg_matching(matching_opts);
 	dpg_matching.init(&features);
 	fea::PairwiseMatching pairwise_matching;
-	dpg_matching.compute(&pairwise_matching);
+	dpg_matching.compute2(&pairwise_matching);
 	if (pairwise_matching.size() < 1) { std::cerr << "*** Error: Wrong matching image pairs. Exiting." << std::endl; return EXIT_FAILURE; }
 
 	/* Save result */
@@ -279,16 +281,17 @@ int FeatureMatcher::Match(std::vector<std::string> szFeaList, std::string szRegi
 	{
 		util::WallTimer timer;
 		
+		float fwidth = static_cast<float>(features[i].width);
+		float fheight = static_cast<float>(features[i].height);
+		float fnorm = std::max(fwidth, fheight);
+		int scale = Scales[i];
+		int sift_fea_num = features[i].sift_descriptors.size();
+		int harris_fea_num = features[i].harris_descriptors.size();
+
 		/* do anti coordinate transe. */
 		{
-			float fwidth = static_cast<float>(features[i].width);
-			float fheight = static_cast<float>(features[i].height);
-			float fnorm = std::max(fwidth, fheight);
-			int scale = Scales[i];
-			int sift_fea_num = features[i].sift_descriptors.size();
-			int harris_fea_num = features[i].harris_descriptors.size();
-
-			if (this->opt_.anti_normalize_coord)
+			/* anti- normalize*/
+			if (/*this->opt_.anti_normalize_coord*/true)
 			{			
 				for (std::size_t j = 0; j < sift_fea_num; j++)
 				{
@@ -305,7 +308,8 @@ int FeatureMatcher::Match(std::vector<std::string> szFeaList, std::string szRegi
 				}
 			}
 
-			if (this->opt_.reverse_y_coord)
+			/* reverse Y from up-down to down-up */
+			if (/*this->opt_.reverse_y_coord*/ true)
 			{
 				for (std::size_t j = 0; j < sift_fea_num; j++)
 				{
@@ -321,28 +325,44 @@ int FeatureMatcher::Match(std::vector<std::string> szFeaList, std::string szRegi
 			}
 		}	
 
+		/* region is in non-normalized coord, and the y axes is: down-up */
 		filter_features(features[i], Scales[i], region_poly[i].contour,
 			features_filter[i], fea_id_maps[i]);
 
-		/* Must do Normalizztion, or it will fail in outlier detection process */	
-		float fwidth = static_cast<float>(features_filter[i].width);
-		float fheight = static_cast<float>(features_filter[i].height);
-		float fnorm = std::max(fwidth, fheight);
-		int scale = Scales[i];
-		int sift_fea_num = features_filter[i].sift_descriptors.size();
-		int harris_fea_num = features_filter[i].harris_descriptors.size();
-		for (std::size_t j = 0; j < sift_fea_num; j++)
+		/* Must do Normalization, or it will fail in outlier detection process */	
 		{
-			math::Vec2f& pos = features_filter[i].positions[j];
-			pos[0] = (pos[0] + 0.5f - fwidth / 2.0f) / fnorm;
-			pos[1] = (pos[1] + 0.5f - fheight / 2.0f) / fnorm;
+			/* reverse Y from down-up to up-down*/
+			{
+				for (std::size_t j = 0; j < sift_fea_num; j++)
+				{
+					math::Vec2f& pos = features[i].positions[j];
+					pos[1] = fheight - 1 - pos[1];
+				}
+
+				for (std::size_t j = 0; j < harris_fea_num; j++)
+				{
+					math::Vec2f& pos = features[i].positions[j + sift_fea_num];
+					pos[1] = fheight * scale - 1 - pos[1];
+				}
+			}
+
+			/* normalize*/
+			{
+				for (std::size_t j = 0; j < sift_fea_num; j++)
+				{
+					math::Vec2f& pos = features_filter[i].positions[j];
+					pos[0] = (pos[0] + 0.5f - fwidth / 2.0f) / fnorm;
+					pos[1] = (pos[1] + 0.5f - fheight / 2.0f) / fnorm;
+				}
+				for (std::size_t j = 0; j < harris_fea_num; j++)
+				{
+					math::Vec2f& pos = features_filter[i].positions[j + sift_fea_num];
+					pos[0] = (pos[0] + 0.5f - fwidth * scale / 2.0f) / (fnorm * scale);
+					pos[1] = (pos[1] + 0.5f - fheight * scale / 2.0f) / (fnorm * scale);
+				}
+			}		
 		}
-		for (std::size_t j = 0; j < harris_fea_num; j++)
-		{
-			math::Vec2f& pos = features_filter[i].positions[j + sift_fea_num];
-			pos[0] = (pos[0] + 0.5f - fwidth * scale / 2.0f) / (fnorm * scale);
-			pos[1] = (pos[1] + 0.5f - fheight * scale / 2.0f) / (fnorm * scale);
-		}
+		
 #pragma omp critical
 		{
 			std::cout << "\rGet"
@@ -368,7 +388,7 @@ int FeatureMatcher::Match(std::vector<std::string> szFeaList, std::string szRegi
 		matching_opts.min_matching_inliers = (int)(this->opt_.min_feature_matches / 5.0);
 		matching_opts.use_lowres_matching = !bHasValidRegion;
 		matching_opts.num_lowres_features = 1000;
-		matching_opts.matcher_type = (fea::fea_mch::dpg_mch::Matching::MatcherType)this->opt_.matcher_type;
+		matching_opts.matcher_type = fea::fea_mch::dpg_mch::Matching::MatcherType::MATCHER_HARRIS;
 
 		/* Compute match */
 		fea::fea_mch::dpg_mch::Matching dpg_matching(matching_opts);

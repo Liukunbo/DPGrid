@@ -34,7 +34,7 @@ public:
 		FEATURE_SIFT = 0x1,
 		FEATURE_SURF = 0x2,
 		FEATURE_HARRIS = 0x3,
-		FEATURE_ALL = 0xFF
+		FEATURE_SIFTSURF = 0x4
     };
 
     /** Options for feature detection and matching. */

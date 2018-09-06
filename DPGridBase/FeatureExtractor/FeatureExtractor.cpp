@@ -12,6 +12,8 @@
 FeatureExtractor::FeatureExtractor(FeatureExtractor::Options const & options)
 	: opt_(options), max_image_size_(DEFAULT_MAX_IMAGE_SIZE)
 {
+	opt_.reverse_y_coord = false;
+	opt_.normalize_coord = true;
 }
 
 FeatureExtractor::~FeatureExtractor()
@@ -27,6 +29,9 @@ void FeatureExtractor::SetOptions(FeatureExtractor::Options const & options)
 	{
 		opt_.feature_lvl = LEVEL_1;
 	}
+
+	opt_.reverse_y_coord = false;
+	opt_.normalize_coord = true;
 }
 
 void FeatureExtractor::SetMaxImageSize(std::size_t maxSize)
@@ -55,9 +60,10 @@ int FeatureExtractor::FeatureDetecHarris(std::string const szImagePath, std::str
 	std::cout << "Wid: " << nOriWid << "; Hei: " << nOriHei << std::endl;
 
 	/* extract harris on origin lvl. */
-	fea::FeatureSet::Options feature_options;
-	fea::Harris::Options harris_option; harris_option.debug_output = this->opt_.debug_output;
+	fea::Harris::Options harris_option;
+	harris_option.debug_output = this->opt_.debug_output;
 	harris_option.window_size = 50;
+	fea::FeatureSet::Options feature_options;
 	feature_options.harris_opts = harris_option;
 	feature_options.feature_types = fea::FeatureSet::FEATURE_HARRIS;
 
@@ -96,12 +102,18 @@ int FeatureExtractor::FeatureDetecHarris(std::string const szImagePath, std::str
 	std::cout << "Number of Sift: " << features.sift_descriptors.size() << std::endl;
 	std::cout << "Number of Harris: " << features.harris_descriptors.size() << std::endl;
 
-	/* Normalize feature coordinates. */
+	// save feature for show
+	if (this->opt_.debug_output)
+	{
+		fea::fea_mch::saveHarrisFeatureTxt(szFeaturePath + ".txt", nScale, features.width, features.height, features);
+	}
+
 	int sift_fea_size = features.sift_descriptors.size();
 	int harris_fea_size = features.harris_descriptors.size();
 	float fwidth = static_cast<float>(features.width);
 	float fheight = static_cast<float>(features.height);
 	float fnorm = std::max(fwidth, fheight);
+	/* reverse the y coordinate. */
 	if (this->opt_.reverse_y_coord)
 	{
 		for (std::size_t j = 0; j < sift_fea_size; ++j)
@@ -116,6 +128,8 @@ int FeatureExtractor::FeatureDetecHarris(std::string const szImagePath, std::str
 		}
 
 	}
+
+	/* Normalize feature coordinates. */
 	if (this->opt_.normalize_coord)
 	{
 		for (std::size_t j = 0; j < sift_fea_size; ++j)
@@ -138,11 +152,7 @@ int FeatureExtractor::FeatureDetecHarris(std::string const szImagePath, std::str
 
 	/* save feature file */
 	int ret = fea::fea_mch::saveFeatureFile(szFeaturePath, nScale, features.width, features.height, features);
-	if (this->opt_.debug_output)
-	{
-		fea::fea_mch::saveHarrisFeatureTxt(szFeaturePath + ".txt", nScale, features.width, features.height, features);
-	}
-
+	
 	features.positions.clear();
 	features.colors.clear();
 	features.clear_descriptors();
@@ -190,10 +200,10 @@ int FeatureExtractor::FeatureDetec(std::string const szImagePath, std::string co
 	std::cout << "Scaled : " << nScale << std::endl;
 
 	/* feature detec */
-	fea::FeatureSet::Options feature_options;
 	fea::Sift::Options sift_option;
 	//sift_option.max_octave = 3;
 	//sift_option.num_samples_per_octave = 2;
+	fea::FeatureSet::Options feature_options;
 	feature_options.feature_types = (fea::FeatureSet::FeatureTypes)opt_.feature_type;
 	feature_options.sift_opts = sift_option;
 
@@ -215,10 +225,16 @@ int FeatureExtractor::FeatureDetec(std::string const szImagePath, std::string co
 	std::cout << "Number of Sift: " << features.sift_descriptors.size() << std::endl;
 	std::cout << "Number of Surf: " << features.surf_descriptors.size() << std::endl;
 
-	/* Normalize feature coordinates. */		
+	/* save for show */
+	if (this->opt_.debug_output)
+	{
+		fea::fea_mch::saveFeatureFileTxt(szFeaturePath + ".txt", nScale, features.width, features.height, features);
+	}
+
 	float const fwidth = static_cast<float>(features.width);
 	float const fheight = static_cast<float>(features.height);
 	float const fnorm = std::max(fwidth, fheight);
+	/* reverse the y coornidate. */		
 	if (this->opt_.reverse_y_coord)
 	{
 		for (std::size_t j = 0; j < features.positions.size(); ++j)
@@ -227,6 +243,8 @@ int FeatureExtractor::FeatureDetec(std::string const szImagePath, std::string co
 			pos[1] = fheight - 1 - pos[1]; /* reverse the y coordinate */
 		}
 	}
+
+	/* Normalize feature coordinates. */
 	if (this->opt_.normalize_coord)
 	{
 		/* normalize */
@@ -240,11 +258,7 @@ int FeatureExtractor::FeatureDetec(std::string const szImagePath, std::string co
 	
 	/* save feature file */
 	int ret = fea::fea_mch::saveFeatureFile(szFeaturePath, nScale, features.width, features.height, features);
-	if (this->opt_.debug_output)
-	{
-		fea::fea_mch::saveFeatureFileTxt(szFeaturePath + ".txt", nScale, features.width, features.height, features);
-	}	
-
+	
 	features.positions.clear();
 	features.colors.clear();
 	features.clear_descriptors();

@@ -25,7 +25,7 @@ int extrac_fea(std::vector<std::string> const szImageFiles, std::string szFeatDi
 	FeatureExtractor::Options options;
 	options.debug_output = false;
 	options.feature_type = FeatureExtractor::FeatureTypes(featureType);
-	options.feature_lvl = FeatureExtractor::FeatureLevel::LEVEL_AUTO;
+	options.feature_lvl = FeatureExtractor::FeatureLevel::LEVEL_1;
 
 	FeatureExtractor extractor(options);
 
@@ -265,4 +265,27 @@ int doTest2()
 	szFeatList.emplace_back("F:\\Data_Work\\feat_harris\\feat\\DJI_0002.feathrs");
 
 	return match_harris(szFeatList, "F:\\Data_Work\\feat_harris\\match.txt");
+}
+
+int testSiftMatch()
+{
+	std::vector<std::string> szImgList;
+	szImgList.emplace_back("F:\\Data_In\\0813\\1\\Images\\Œ¢–≈Õº∆¨_20180813141848.jpg");
+	szImgList.emplace_back("F:\\Data_In\\0813\\1\\Images\\Œ¢–≈Õº∆¨_20180813141853.JPG");
+
+	extrac_fea(szImgList, "F:\\Data_Work\\dpgrid\\feat", ".feat");
+
+	std::vector<std::string> szFeatList;
+	szFeatList.emplace_back("F:\\Data_Work\\dpgrid\\feat\\Œ¢–≈Õº∆¨_20180813141848.feat");
+	szFeatList.emplace_back("F:\\Data_Work\\dpgrid\\feat\\Œ¢–≈Õº∆¨_20180813141853.feat");
+
+	FeatureMatcher::Options options;
+	options.debug_output = true;
+	options.min_feature_matches = 8;
+	options.matcher_type = FeatureMatcher::MatcherType::MATCHER_EXHAUSTIVE;
+	FeatureMatcher matcher(options);
+
+	matcher.Match(szFeatList[0], szFeatList[1], "F:\\Data_Work\\dpgrid\\match\\test.mch");
+
+	return 1;
 }

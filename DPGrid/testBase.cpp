@@ -4,6 +4,6 @@
 
 int main(int argc, char* argv[])
 {
-	return doTest(argc, argv);
+	return testSiftMatch();
 	//return doTest2();
 }

@@ -34,9 +34,15 @@ public:
 		MatcherType matcher_type = MATCHER_EXHAUSTIVE;
 		/** Save debug information. Default is false */
 		bool debug_output = false;
-		/** Do we need to reverse the y coordinates. */
-		bool reverse_y_coord = true;
-		/** Do we need to normalize the coordinates. */
+		/** 
+		   Do we need to reverse the y coordinates. 
+		   Default is false. Any change to this will not work!
+		*/
+		bool reverse_y_coord = false;
+		/** 
+		   Do we need to normalize the coordinates. 
+		   Default is false. Any change to this will not work!
+		*/
 		bool anti_normalize_coord = false;
 	};
 

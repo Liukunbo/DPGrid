@@ -12,7 +12,7 @@
 #	define FeatureExtractorAPI
 #endif
 
-//The Feature Point's Coordinate System is Showned Below:
+//The Default Feature Point's Coordinate System is Showned Below:
 //	o------> (x pixels)
 //  \
 //  \
@@ -26,8 +26,8 @@ public:
 	{
 		FEATURE_SIFT = 0x1,
 		FEATURE_SURF = 0x2,
-		FEATURE_HARRIS = 0x3,
-		FEATURE_ALL = 0xFF
+		FEATURE_HARRIS = 0x3, /** Harris will always be extracted at the origin lvl.*/
+		FEATURE_SIFTSURF = 0x4
 	};
 
 	enum FeatureLevel
@@ -52,11 +52,15 @@ public:
 		/* Save debug information. Default is false */
 		bool debug_output = false;
 
-		/* Do we need to reverse the y coordinates. */
-		bool reverse_y_coord = false;
+		/* Do we need to reverse the y coordinates (from up-down to  down-up).
+		    default is false. Any change to this will not work!
+		*/
+		bool reverse_y_coord = false; 
 
-		/* Do we need to normalize the coordinates. */
-		bool normalize_coord = false;
+		/* Do we need to normalize the coordinates.
+		   default is true. Any change to this will not work!
+		*/
+		bool normalize_coord = true;
 	};
 
 public:

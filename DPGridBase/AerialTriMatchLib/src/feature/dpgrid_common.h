@@ -221,7 +221,11 @@ int saveFeatureFileTxt(std::string szFeaturePath, int Scale, int FeaW, int FeaH,
 	int32_t num_surfs = static_cast<int32_t>(features.surf_descriptors.size());
 	out << std::setw(7) << num_surfs << std::endl; 
 
-	/* Write positions and colors . */
+	/* Write number of harris features. */
+	int32_t num_harris = static_cast<int32_t>(features.harris_descriptors.size());
+	out << std::setw(7) << num_harris << std::endl;
+
+	/* Write positions and colors . (y reversed for show - origin lvl.) */
 	float const fwidth = static_cast<float>(features.width);
 	float const fheight = static_cast<float>(features.height);
 	float const fnorm = std::max(fwidth, fheight);
@@ -232,7 +236,9 @@ int saveFeatureFileTxt(std::string szFeaturePath, int Scale, int FeaW, int FeaH,
 		
 		x = pos[0];
 		y = sh - 1 - pos[1];
-		out << std::setw(7) << x << "  " << y;
+		out << std::setw(7) << x * sc << "  " 
+			<< std::setw(7) << y * sc << "  ";
+		out << 0.0 << "  " << 0.0 << "  " << 0.0 << "  ";
 
 		math::Vec3uc const& col = features.colors[i];
 		out << std::setw(5) << (int)col[0] << "  " << (int)col[1] << "  " << (int)col[2] << std::endl; 
@@ -332,22 +338,23 @@ int saveHarrisFeatureTxt(std::string szFeaturePath, int Scale, int FeaW, int Fea
 	int32_t num_sifts = static_cast<int32_t>(features.sift_descriptors.size());
 	out << std::setw(7) << num_sifts;
 
-	/* Write number of surf features. */
+	/* Write number of harris features. */
 	int32_t num_harris = static_cast<int32_t>(features.harris_descriptors.size());
 	out << std::setw(7) << num_harris << std::endl;
 
-	/* Write positions and colors . */
+	/* Write positions and colors . (y - reversed for show, origin lvl.) */
 	double x, y;
 	for (std::size_t i = 0; i < num_harris; i++)
 	{
-		out << i << "  ";
+		out << std::setw(6) << i << "  ";
 		math::Vec2f const& pos = features.positions[i + num_sifts];
 
 		x = pos[0];
 		y = sh * sc - 1 - pos[1];
+		out << std::setw(7) << x << "  " 
+			<< std::setw(7) << y << "  ";
 		out << 0.0 << "  " << 0.0 << "  " << 0.0 << "  ";
-		out << std::setw(7) << x << "  " << y;
-
+		
 		math::Vec3uc const& col = features.colors[i + num_sifts];
 		out << std::setw(5) << (int)col[0] << "  " << (int)col[1] << "  " << (int)col[2] << std::endl;
 	}
@@ -627,7 +634,7 @@ int saveMatchFile(std::string szMatchFile, fea::PairwiseMatching const & matchin
 		out.write(feature_name.c_str(), len);
 	}
 
-	out.close(); std::cout << "\rSave file: " << szMatchFile << " Success.\n" << std::endl;
+	out.close(); std::cout << "\rSave file: " << szMatchFile << " Success.\n";
 
 	return EXIT_SUCCESS;
 }
@@ -655,7 +662,7 @@ int saveMatchFileTxt(std::string szMatchFile, fea::PairwiseMatching const & matc
 		out << basename(feat_file_list[id1]) << "-----" << basename(feat_file_list[id2]) << std::endl;
 	}
 
-	/* Write per-matching pair data. */
+	/* Write per-matching pair data. (y is reversed for show -- origin lvl.) */
 	for (std::size_t i = 0; i < num_pairs; ++i)
 	{
 		fea::TwoViewMatching const& tvr = matching[i];
@@ -667,9 +674,18 @@ int saveMatchFileTxt(std::string szMatchFile, fea::PairwiseMatching const & matc
 		if (nullptr != features)
 		{
 			fea::FeatureSet const & feature1 = features->at(id1);
-			int hei1 = feature1.height * feature1.scale;
+			float fwidth1 = static_cast<float>(feature1.width);
+			float fheight1 = static_cast<float>(feature1.height);
+			int scale1 = feature1.scale;
+			float fnorm1 = std::max(fwidth1, fheight1);	
+			int hei1 = fheight1 * scale1;
+
 			fea::FeatureSet const & feature2 = features->at(id2);
-			int hei2 = feature2.height * feature2.scale;
+			float fwidth2 = static_cast<float>(feature2.width);
+			float fheight2 = static_cast<float>(feature2.height);
+			int scale2 = feature2.scale;
+			float fnorm2 = std::max(fwidth2, fheight2);	
+			int hei2 = fheight2 * scale2;
 
 			for (std::size_t j = 0; j < num_matches; ++j)
 			{
@@ -677,10 +693,42 @@ int saveMatchFileTxt(std::string szMatchFile, fea::PairwiseMatching const & matc
 				int32_t i1 = static_cast<int32_t>(c.first);
 				int32_t i2 = static_cast<int32_t>(c.second);
 
+				float xl = feature1.positions[i1][0] * fnorm1 + (fwidth1 - 1.0) / 2.0;
+				float yl = feature1.positions[i1][1] * fnorm1 + (fheight1 - 1.0) / 2.0;
+				float xr = feature2.positions[i2][0] * fnorm2 + (fwidth2 - 1.0) / 2.0;
+				float yr = feature2.positions[i2][1] * fnorm2 + (fheight2 - 1.0) / 2.0;
+
 				out << std::setw(6) << j << "  ";
-				out << std::setw(7) << feature1.positions[i1][0] * feature1.scale << "  " << (hei1 - 1) - feature1.positions[i1][1] * feature1.scale << "  "
-					<< feature2.positions[i2][0] * feature2.scale << "  " << (hei2 - 1) -  feature2.positions[i2][1] * feature2.scale << "  ";
-				out << std::setw(6) << i1 << "  " << i2 << "  "<< 0.0 <<std::endl;
+				out << std::setw(7) << xl * scale1 << "  "
+					<< std::setw(7) << (hei1 - 1) - (yl * scale1) << "  "
+					<< std::setw(7) << xr * scale2 << "  "
+					<< std::setw(7) << (hei2 - 1) - (yr * scale2) << "  ";
+				out << std::setw(6) << i1 << "  " 
+					<< std::setw(6) << i2 << "  "
+					<< std::setw(6) << 0.0 << "  ";
+
+				for (std::size_t k = 0; k < j; k++)
+				{
+					fea::CorrespondenceIndex const& c2 = tvr.matches[k];
+					int32_t i12 = static_cast<int32_t>(c2.first);
+					int32_t i22 = static_cast<int32_t>(c2.second);
+
+					if (feature1.positions[i1][0] == feature1.positions[i12][0]
+						&& feature1.positions[i1][1] == feature1.positions[i12][1])
+					{
+						if (feature2.positions[i2][0] == feature2.positions[i22][0]
+							&& feature2.positions[i2][1] == feature2.positions[i22][1])
+						{
+							out << " --- Repeat: " << std::setw(6) << k;
+						}
+						else
+						{
+							out << " --- 1-N: " << std::setw(6) << k;
+						}
+					}			
+				}
+
+				out << std::endl;
 			}
 		}
 		else
@@ -695,7 +743,7 @@ int saveMatchFileTxt(std::string szMatchFile, fea::PairwiseMatching const & matc
 		}
 		
 	}
-	out.close(); std::cout << "\rSave file: " << szMatchFile << " Success" << std::endl;
+	out.close(); std::cout << "\rSave file: " << szMatchFile << " Success. \n";
 
 	return EXIT_SUCCESS;
 }
@@ -734,21 +782,40 @@ int saveHarrisMatchTxt(std::string szMatchFile, fea::PairwiseMatching const & ma
 
 		if (nullptr != features)
 		{
+			fea::FeatureSet const & feature1 = features->at(id1);
+			int scale1 = feature1.scale;
+			float fwidth1 = static_cast<float>(feature1.width * scale1);
+			float fheight1 = static_cast<float>(feature1.height * scale1);	
+			float fnorm1 = std::max(fwidth1, fheight1);	
+			int hei1 = fheight1;
+
+			fea::FeatureSet const & feature2 = features->at(id2);
+			int scale2 = feature2.scale;
+			float fwidth2 = static_cast<float>(feature2.width * scale2);
+			float fheight2 = static_cast<float>(feature2.height * scale2);	
+			float fnorm2 = std::max(fwidth2, fheight2);
+			int hei2 = fheight2;
+
 			for (std::size_t j = 0; j < num_matches; ++j)
 			{
 				fea::CorrespondenceIndex const& c = tvr.matches[j];
-				fea::FeatureSet const & feature1 = features->at(id1);
-				int sift1 = feature1.sift_descriptors.size();
-				int hei1 = feature1.height * feature1.scale;
-				fea::FeatureSet const & feature2 = features->at(id2);
-				int sift2 = feature2.sift_descriptors.size();
-				int hei2 = feature2.height * feature2.scale;
+				
 				int32_t i1 = static_cast<int32_t>(c.first);
 				int32_t i2 = static_cast<int32_t>(c.second);
+
+				float xl = feature1.positions[i1][0] * fnorm1 + (fwidth1 - 1.0) / 2.0;
+				float yl = feature1.positions[i1][1] * fnorm1 + (fheight1 - 1.0) / 2.0;
+				float xr = feature2.positions[i2][0] * fnorm2 + (fwidth2 - 1.0) / 2.0;
+				float yr = feature2.positions[i2][1] * fnorm2 + (fheight2 - 1.0) / 2.0;
+
 				out << std::setw(6) << j << "  ";
-				out << std::setw(7) << feature1.positions[i1][0] << "  " << (hei1 - 1 - feature1.positions[i1][1])  << "  "
-					<< feature2.positions[i2][0] << "  " << (hei2 - 1 - feature2.positions[i2][1]) << "  ";
-				out << std::setw(6) << i1 << "  " << i2 << std::endl;
+				out << std::setw(7) << xl << "  "
+					<< std::setw(7) << (hei1 - 1) - yl << "  "
+					<< std::setw(7) << xr << "  "
+					<< std::setw(7) << (hei2 - 1) - yr << "  ";
+				out << std::setw(6) << i1 << "  "
+					<< std::setw(6) << i2 << "  "
+					<< std::setw(6) << 0.0 << "  ";
 			}
 		}
 		else
@@ -763,7 +830,7 @@ int saveHarrisMatchTxt(std::string szMatchFile, fea::PairwiseMatching const & ma
 		}
 
 	}
-	out.close(); std::cout << "\rSave file: " << szMatchFile << " Success" << std::endl;
+	out.close(); std::cout << "\rSave file: " << szMatchFile << " Success. \n";
 
 	return EXIT_SUCCESS;
 }

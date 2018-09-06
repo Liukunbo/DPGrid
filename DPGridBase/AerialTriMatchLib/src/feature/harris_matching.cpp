@@ -296,7 +296,7 @@ void HarrisMatching::pairwise_match(int view_1_id, int view_2_id, Matching::Resu
 			<< " from ( " << harris_result.matches_1_2.size() << " ). ";
 	}
 
-	/* combine matching result. (sift matching are set to -1 )*/
+	/* combine matching result. (sift matching are set to -1, thus it will not be used )*/
 	int sift_result_num = sift_result.matches_1_2.size();
 	sift_result.matches_1_2.resize(0);
 	sift_result.matches_1_2.resize(sift_result_num, -1);

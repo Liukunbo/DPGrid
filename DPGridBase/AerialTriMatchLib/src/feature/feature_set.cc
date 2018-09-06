@@ -33,16 +33,24 @@ FeatureSet::compute_features (dpgrid::ByteImage::Ptr image)
     this->height = image->height();
 
     /* Make sure these are in the right order. Matching relies on it. */
-	if (this->opts.feature_types != FEATURE_HARRIS)
+	switch (this->opts.feature_types)
 	{
-		if (this->opts.feature_types & FEATURE_SIFT)
-			this->compute_sift(image);
-		if (this->opts.feature_types & FEATURE_SURF)
-			this->compute_surf(image);
-	}
-
-	if (this->opts.feature_types == FEATURE_HARRIS || this->opts.feature_types == FEATURE_ALL)
+	case FEATURE_SIFT:
+		this->compute_sift(image);
+		break;
+	case FEATURE_SURF:
+		this->compute_surf(image);
+		break;
+	case FEATURE_HARRIS:
 		this->compute_harris(image);
+		break;
+	case FEATURE_SIFTSURF:
+		this->compute_sift(image);
+		this->compute_surf(image);
+		break;
+	default:
+		break;
+	}
 }
 
 void
@@ -152,7 +160,7 @@ std::size_t FeatureSet::get_feature_num(void)
 {
 	switch (this->opts.feature_types)
 	{
-	case FEATURE_ALL:
+	case FEATURE_SIFTSURF:
 		return (std::size_t)this->positions.size();
 		break;
 	case FEATURE_SIFT:
